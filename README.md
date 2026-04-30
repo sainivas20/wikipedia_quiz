@@ -62,7 +62,7 @@ cp .env.example .env
 Your `.env` should look like:
 
 ```env
-GEMINI_API_KEY=AIzaSyABZjk1_jb92YFbAZZkC0-atRFuCNp9sbY
+GEMINI_API_KEY=AIzaSyB03mn0dHMzS-jEx1pjy4cAMt5_6JX_o5c
 
 # Optional: PostgreSQL (defaults to SQLite if not set)
 # DATABASE_URL=postgresql://user:password@localhost:5432/wikiquiz
