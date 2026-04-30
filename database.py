@@ -1,0 +1,30 @@
+"""
+Database configuration using SQLAlchemy with PostgreSQL.
+Falls back to SQLite for local development/testing.
+"""
+
+import os
+from sqlalchemy import create_engine
+from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.orm import sessionmaker
+
+# ── Connection URL ─────────────────────────────────────────────────────────
+# Set DATABASE_URL in your environment for PostgreSQL:
+#   postgresql://user:password@localhost:5432/wikiquiz
+# Falls back to SQLite for easy local development.
+
+DATABASE_URL = os.getenv(
+    "DATABASE_URL",
+    "sqlite:///./wikiquiz.db"  # local dev fallback
+)
+
+# SQLite needs check_same_thread=False for FastAPI's threaded usage
+connect_args = {}
+if DATABASE_URL.startswith("sqlite"):
+    connect_args = {"check_same_thread": False}
+
+engine = create_engine(DATABASE_URL, connect_args=connect_args)
+
+SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
+
+Base = declarative_base()

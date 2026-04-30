@@ -1,0 +1,1112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>WikiQuiz — AI-Powered Quiz Generator</title>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,300;0,400;0,600;1,300;1,400&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet" />
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #0d1117;
+    --surface: #161b22;
+    --surface2: #1c2230;
+    --surface3: #21273a;
+    --border: rgba(255,255,255,0.08);
+    --border2: rgba(255,255,255,0.14);
+    --text: #e6edf3;
+    --text2: #8b949e;
+    --text3: #656d76;
+    --accent: #58a6ff;
+    --accent-dim: rgba(88,166,255,0.12);
+    --accent-border: rgba(88,166,255,0.35);
+    --green: #3fb950;
+    --green-dim: rgba(63,185,80,0.12);
+    --amber: #d29922;
+    --amber-dim: rgba(210,153,34,0.12);
+    --red: #f85149;
+    --red-dim: rgba(248,81,73,0.12);
+    --purple: #a371f7;
+    --purple-dim: rgba(163,113,247,0.12);
+    --radius: 12px;
+    --radius-sm: 8px;
+  }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    font-size: 15px;
+    line-height: 1.6;
+  }
+
+  /* ─── Header ─────────────────────────────────────────────────── */
+  .site-header {
+    border-bottom: 1px solid var(--border);
+    padding: 0 2rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 60px;
+    position: sticky; top: 0;
+    background: rgba(13,17,23,0.85);
+    backdrop-filter: blur(12px);
+    z-index: 100;
+  }
+  .logo {
+    font-family: 'Fraunces', serif;
+    font-size: 22px;
+    font-weight: 600;
+    color: var(--text);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .logo-mark {
+    width: 32px; height: 32px;
+    border-radius: 8px;
+    background: var(--accent);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 16px;
+    color: #0d1117;
+    font-weight: 700;
+  }
+  .logo em {
+    font-style: italic;
+    color: var(--accent);
+  }
+
+  /* ─── Tabs ───────────────────────────────────────────────────── */
+  .tabs {
+    display: flex;
+    gap: 4px;
+    background: var(--surface);
+    border-radius: var(--radius);
+    padding: 4px;
+  }
+  .tab-btn {
+    padding: 7px 18px;
+    border: none;
+    background: transparent;
+    color: var(--text2);
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    font-size: 14px;
+    font-family: 'DM Sans', sans-serif;
+    font-weight: 500;
+    transition: all 0.15s;
+    white-space: nowrap;
+  }
+  .tab-btn:hover { color: var(--text); background: var(--surface2); }
+  .tab-btn.active { background: var(--accent); color: #0d1117; }
+
+  /* ─── Main layout ────────────────────────────────────────────── */
+  .main { max-width: 900px; margin: 0 auto; padding: 2.5rem 1.5rem; }
+
+  /* ─── URL Input Card ─────────────────────────────────────────── */
+  .input-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 1.75rem;
+    margin-bottom: 2rem;
+  }
+  .input-label {
+    font-family: 'Fraunces', serif;
+    font-size: 26px;
+    font-weight: 300;
+    margin-bottom: 6px;
+    line-height: 1.3;
+  }
+  .input-label em { font-style: italic; color: var(--accent); }
+  .input-subtitle {
+    color: var(--text2);
+    font-size: 14px;
+    margin-bottom: 1.25rem;
+  }
+  .url-row {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+  .url-input {
+    flex: 1;
+    min-width: 260px;
+    background: var(--bg);
+    border: 1px solid var(--border2);
+    border-radius: var(--radius-sm);
+    padding: 10px 14px;
+    color: var(--text);
+    font-size: 14px;
+    font-family: 'DM Sans', sans-serif;
+    outline: none;
+    transition: border-color 0.15s;
+  }
+  .url-input:focus { border-color: var(--accent); }
+  .url-input::placeholder { color: var(--text3); }
+  .btn {
+    padding: 10px 22px;
+    border-radius: var(--radius-sm);
+    border: none;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 600;
+    font-family: 'DM Sans', sans-serif;
+    transition: all 0.15s;
+    white-space: nowrap;
+  }
+  .btn-primary { background: var(--accent); color: #0d1117; }
+  .btn-primary:hover { filter: brightness(1.1); }
+  .btn-primary:disabled { opacity: 0.5; cursor: not-allowed; filter: none; }
+  .btn-outline {
+    background: transparent;
+    border: 1px solid var(--border2);
+    color: var(--text2);
+  }
+  .btn-outline:hover { border-color: var(--accent); color: var(--accent); }
+
+  /* preview strip */
+  .preview-strip {
+    margin-top: 12px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 13px;
+    color: var(--text2);
+  }
+  .preview-title { color: var(--text); font-weight: 500; }
+  .badge-cached {
+    background: var(--amber-dim);
+    color: var(--amber);
+    border: 1px solid rgba(210,153,34,0.3);
+    border-radius: 20px;
+    padding: 2px 10px;
+    font-size: 12px;
+  }
+
+  /* ─── Error / Loading ────────────────────────────────────────── */
+  .error-bar {
+    background: var(--red-dim);
+    border: 1px solid rgba(248,81,73,0.3);
+    border-radius: var(--radius-sm);
+    padding: 10px 14px;
+    color: var(--red);
+    font-size: 14px;
+    margin-bottom: 1.25rem;
+  }
+  .loading-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 3rem;
+    text-align: center;
+  }
+  .spinner {
+    width: 36px; height: 36px;
+    border: 3px solid var(--border2);
+    border-top-color: var(--accent);
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+    margin: 0 auto 1rem;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .loading-text { color: var(--text2); font-size: 14px; }
+  .loading-title { font-size: 17px; font-weight: 500; margin-bottom: 6px; }
+
+  /* ─── Quiz Results ───────────────────────────────────────────── */
+  .result-header {
+    margin-bottom: 2rem;
+  }
+  .result-title {
+    font-family: 'Fraunces', serif;
+    font-size: 32px;
+    font-weight: 400;
+    line-height: 1.2;
+    margin-bottom: 8px;
+  }
+  .result-meta {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+    margin-bottom: 1rem;
+  }
+  .chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 500;
+    border: 1px solid;
+  }
+  .chip-blue { background: var(--accent-dim); color: var(--accent); border-color: var(--accent-border); }
+  .chip-green { background: var(--green-dim); color: var(--green); border-color: rgba(63,185,80,0.35); }
+  .chip-purple { background: var(--purple-dim); color: var(--purple); border-color: rgba(163,113,247,0.35); }
+
+  .summary-text {
+    color: var(--text2);
+    font-size: 14px;
+    line-height: 1.7;
+    max-width: 680px;
+  }
+
+  /* sections + entities */
+  .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 2rem; }
+  @media(max-width:640px) { .two-col { grid-template-columns: 1fr; } }
+  .info-panel {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 1rem 1.25rem;
+  }
+  .info-panel-title {
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--text3);
+    margin-bottom: 10px;
+    font-weight: 600;
+  }
+  .tag-list { display: flex; flex-wrap: wrap; gap: 6px; }
+  .tag {
+    background: var(--surface3);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 3px 10px;
+    font-size: 12px;
+    color: var(--text2);
+  }
+
+  /* ─── Quiz Mode Toggle ───────────────────────────────────────── */
+  .mode-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 1.25rem;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+  .mode-bar-title {
+    font-family: 'Fraunces', serif;
+    font-size: 20px;
+    font-weight: 400;
+  }
+  .mode-toggle {
+    display: flex;
+    gap: 6px;
+  }
+  .mode-btn {
+    padding: 6px 16px;
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--border2);
+    background: transparent;
+    color: var(--text2);
+    font-size: 13px;
+    cursor: pointer;
+    font-family: 'DM Sans', sans-serif;
+    transition: all 0.15s;
+  }
+  .mode-btn.active { background: var(--surface3); color: var(--text); border-color: var(--accent); }
+
+  /* ─── Question Card ──────────────────────────────────────────── */
+  .q-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 1.5rem;
+    margin-bottom: 1rem;
+    transition: border-color 0.2s;
+  }
+  .q-card:hover { border-color: var(--border2); }
+  .q-header {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    margin-bottom: 1rem;
+  }
+  .q-number {
+    width: 28px; height: 28px; flex-shrink: 0;
+    background: var(--accent-dim);
+    border: 1px solid var(--accent-border);
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--accent);
+  }
+  .q-text {
+    font-size: 15px;
+    font-weight: 500;
+    line-height: 1.5;
+    flex: 1;
+  }
+  .diff-badge {
+    flex-shrink: 0;
+    padding: 3px 10px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+  }
+  .diff-easy { background: var(--green-dim); color: var(--green); }
+  .diff-medium { background: var(--amber-dim); color: var(--amber); }
+  .diff-hard { background: var(--red-dim); color: var(--red); }
+
+  .options-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    margin-bottom: 1rem;
+  }
+  @media(max-width:560px) { .options-grid { grid-template-columns: 1fr; } }
+
+  .option-btn {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 14px;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    text-align: left;
+    font-size: 14px;
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    transition: all 0.15s;
+    width: 100%;
+  }
+  .option-btn:hover:not(:disabled) { border-color: var(--accent); background: var(--accent-dim); }
+  .option-btn:disabled { cursor: default; }
+  .option-btn.selected { border-color: var(--accent); background: var(--accent-dim); }
+  .option-btn.correct { border-color: var(--green); background: var(--green-dim); color: var(--green); }
+  .option-btn.incorrect { border-color: var(--red); background: var(--red-dim); color: var(--red); }
+  .option-btn.reveal-correct { border-color: var(--green); background: var(--green-dim); color: var(--green); }
+
+  .opt-letter {
+    width: 22px; height: 22px; flex-shrink: 0;
+    background: var(--surface3);
+    border-radius: 4px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--text2);
+  }
+  .option-btn.correct .opt-letter,
+  .option-btn.reveal-correct .opt-letter { background: var(--green); color: #0d1117; }
+  .option-btn.incorrect .opt-letter { background: var(--red); color: #fff; }
+  .option-btn.selected .opt-letter { background: var(--accent); color: #0d1117; }
+
+  /* explanation */
+  .explanation {
+    background: var(--surface2);
+    border-left: 3px solid var(--accent);
+    border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+    padding: 10px 14px;
+    font-size: 13px;
+    color: var(--text2);
+    line-height: 1.6;
+    margin-top: 10px;
+  }
+  .explanation strong { color: var(--accent); }
+
+  /* ─── Score Banner ───────────────────────────────────────────── */
+  .score-banner {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 1.5rem;
+    text-align: center;
+    margin-bottom: 2rem;
+  }
+  .score-big {
+    font-family: 'Fraunces', serif;
+    font-size: 56px;
+    font-weight: 300;
+    color: var(--accent);
+    line-height: 1;
+    margin-bottom: 6px;
+  }
+  .score-sub { color: var(--text2); font-size: 15px; margin-bottom: 1rem; }
+  .score-row { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+  .score-stat { text-align: center; }
+  .score-stat-n { font-size: 22px; font-weight: 600; }
+  .score-stat-l { font-size: 12px; color: var(--text2); margin-top: 2px; }
+
+  /* ─── Related Topics ─────────────────────────────────────────── */
+  .related-section { margin-top: 2rem; margin-bottom: 2rem; }
+  .section-title {
+    font-family: 'Fraunces', serif;
+    font-size: 20px;
+    font-weight: 400;
+    margin-bottom: 1rem;
+  }
+  .topic-grid { display: flex; flex-wrap: wrap; gap: 8px; }
+  .topic-chip {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: 8px 14px;
+    font-size: 13px;
+    color: var(--text2);
+    cursor: pointer;
+    text-decoration: none;
+    transition: all 0.15s;
+  }
+  .topic-chip:hover { border-color: var(--accent); color: var(--accent); background: var(--accent-dim); }
+
+  /* ─── History Tab ────────────────────────────────────────────── */
+  .history-table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+  .history-table th {
+    text-align: left;
+    padding: 10px 14px;
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.07em;
+    color: var(--text3);
+    font-weight: 600;
+    border-bottom: 1px solid var(--border);
+  }
+  .history-table td {
+    padding: 12px 14px;
+    border-bottom: 1px solid var(--border);
+    vertical-align: middle;
+    font-size: 14px;
+  }
+  .history-table tr:hover td { background: var(--surface2); }
+  .history-table tr:last-child td { border-bottom: none; }
+  .table-title { font-weight: 500; color: var(--text); display: block; margin-bottom: 2px; }
+  .table-url { color: var(--text3); font-size: 12px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 240px; display: block; }
+  .table-wrap {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    overflow-x: auto;
+  }
+  .btn-sm {
+    padding: 5px 12px;
+    border-radius: 6px;
+    border: 1px solid var(--border2);
+    background: transparent;
+    color: var(--text2);
+    font-size: 12px;
+    cursor: pointer;
+    font-family: 'DM Sans', sans-serif;
+    transition: all 0.15s;
+  }
+  .btn-sm:hover { border-color: var(--accent); color: var(--accent); }
+  .btn-sm.danger:hover { border-color: var(--red); color: var(--red); }
+
+  /* ─── Modal ──────────────────────────────────────────────────── */
+  .modal-overlay {
+    position: fixed; inset: 0;
+    background: rgba(0,0,0,0.7);
+    backdrop-filter: blur(4px);
+    z-index: 200;
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+    padding: 2rem 1rem;
+    overflow-y: auto;
+  }
+  .modal {
+    background: var(--bg);
+    border: 1px solid var(--border2);
+    border-radius: var(--radius);
+    width: 100%;
+    max-width: 760px;
+    padding: 2rem;
+    position: relative;
+    animation: modal-in 0.2s ease;
+  }
+  @keyframes modal-in { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
+  .modal-close {
+    position: absolute;
+    top: 1rem; right: 1rem;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    width: 30px; height: 30px;
+    cursor: pointer;
+    color: var(--text2);
+    font-size: 16px;
+    display: flex; align-items: center; justify-content: center;
+    transition: all 0.15s;
+  }
+  .modal-close:hover { color: var(--text); border-color: var(--border2); }
+
+  /* ─── Empty State ────────────────────────────────────────────── */
+  .empty-state {
+    text-align: center;
+    padding: 4rem 2rem;
+    color: var(--text2);
+  }
+  .empty-icon {
+    font-size: 48px;
+    margin-bottom: 1rem;
+    opacity: 0.4;
+  }
+  .empty-title { font-size: 18px; font-weight: 500; color: var(--text); margin-bottom: 6px; }
+  .empty-sub { font-size: 14px; }
+
+  /* Animations */
+  .fade-in { animation: fadeIn 0.3s ease; }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+
+  /* Submit quiz button row */
+  .quiz-actions {
+    display: flex;
+    gap: 10px;
+    margin-top: 1.5rem;
+    flex-wrap: wrap;
+  }
+</style>
+</head>
+<body>
+
+<header class="site-header">
+  <div class="logo">
+    <div class="logo-mark">W</div>
+    Wiki<em>Quiz</em>
+  </div>
+  <div class="tabs" id="tab-bar">
+    <button class="tab-btn active" onclick="setTab('generate')">⚡ Generate</button>
+    <button class="tab-btn" onclick="setTab('history')">📚 History</button>
+  </div>
+</header>
+
+<main class="main" id="app"></main>
+
+<script>
+// ══════════════════════════════════════════════════════════════════════
+// CONFIG
+// ══════════════════════════════════════════════════════════════════════
+const API_BASE = 'http://localhost:8000';
+
+// ══════════════════════════════════════════════════════════════════════
+// STATE
+// ══════════════════════════════════════════════════════════════════════
+let state = {
+  tab: 'generate',
+  url: '',
+  preview: null,
+  previewLoading: false,
+  loading: false,
+  error: null,
+  quiz: null,
+  mode: 'study',        // 'study' | 'take'
+  answers: {},          // { questionIndex: optionText }
+  submitted: false,
+  history: [],
+  histLoading: false,
+  modal: null,          // quiz object shown in modal
+  modalMode: 'study',
+  modalAnswers: {},
+  modalSubmitted: false,
+};
+
+// ══════════════════════════════════════════════════════════════════════
+// RENDER LOOP
+// ══════════════════════════════════════════════════════════════════════
+function render() {
+  const app = document.getElementById('app');
+  app.innerHTML = state.tab === 'generate' ? renderGenerate() : renderHistory();
+  bindEvents();
+}
+
+function setState(updates) {
+  state = { ...state, ...updates };
+  render();
+}
+
+// ══════════════════════════════════════════════════════════════════════
+// TAB
+// ══════════════════════════════════════════════════════════════════════
+function setTab(tab) {
+  document.querySelectorAll('.tab-btn').forEach((b, i) => {
+    b.classList.toggle('active', (i === 0 && tab === 'generate') || (i === 1 && tab === 'history'));
+  });
+  if (tab === 'history') loadHistory();
+  setState({ tab, modal: null });
+}
+
+// ══════════════════════════════════════════════════════════════════════
+// GENERATE TAB
+// ══════════════════════════════════════════════════════════════════════
+function renderGenerate() {
+  let content = '';
+
+  // Input card
+  content += `
+  <div class="input-card">
+    <h1 class="input-label">Generate a quiz from any <em>Wikipedia</em> article</h1>
+    <p class="input-subtitle">Paste a Wikipedia URL and AI will build a quiz with explanations, difficulty levels, and related topics.</p>
+    <div class="url-row">
+      <input type="url" id="url-input" class="url-input"
+        placeholder="https://en.wikipedia.org/wiki/Alan_Turing"
+        value="${escHtml(state.url)}" />
+      <button class="btn btn-primary" id="generate-btn" ${state.loading ? 'disabled' : ''}>
+        ${state.loading ? 'Generating…' : '→ Generate Quiz'}
+      </button>
+    </div>
+    ${renderPreview()}
+  </div>`;
+
+  if (state.error) {
+    content += `<div class="error-bar">⚠ ${escHtml(state.error)}</div>`;
+  }
+
+  if (state.loading) {
+    content += `
+    <div class="loading-card">
+      <div class="spinner"></div>
+      <p class="loading-title">Analyzing article…</p>
+      <p class="loading-text">Scraping content, extracting entities, and generating quiz questions.</p>
+    </div>`;
+  } else if (state.quiz) {
+    content += renderQuizResult(state.quiz, state.mode, state.answers, state.submitted, false);
+  } else {
+    content += renderQuickExamples();
+  }
+
+  return content;
+}
+
+function renderPreview() {
+  if (state.previewLoading) return `<div class="preview-strip"><span style="color:var(--text3)">Fetching title…</span></div>`;
+  if (!state.preview) return '';
+  return `
+  <div class="preview-strip">
+    <span>→</span>
+    <span class="preview-title">${escHtml(state.preview.title)}</span>
+    ${state.preview.already_processed ? '<span class="badge-cached">✓ Cached</span>' : ''}
+  </div>`;
+}
+
+function renderQuickExamples() {
+  const examples = [
+    'https://en.wikipedia.org/wiki/Alan_Turing',
+    'https://en.wikipedia.org/wiki/Black_hole',
+    'https://en.wikipedia.org/wiki/French_Revolution',
+    'https://en.wikipedia.org/wiki/CRISPR',
+  ];
+  return `
+  <div style="text-align:center; padding: 3rem 1rem; color: var(--text3);">
+    <div style="font-size:40px; margin-bottom:1rem; opacity:0.3">⚡</div>
+    <p style="font-size:16px; color:var(--text2); margin-bottom:1.5rem">Enter a Wikipedia URL above to get started</p>
+    <p style="font-size:13px; margin-bottom:12px;">Try one of these:</p>
+    <div style="display:flex; flex-wrap:wrap; gap:8px; justify-content:center;">
+      ${examples.map(u => `<button class="topic-chip example-url" data-url="${u}">${u.split('/wiki/')[1].replace(/_/g,' ')}</button>`).join('')}
+    </div>
+  </div>`;
+}
+
+// ══════════════════════════════════════════════════════════════════════
+// QUIZ RENDERER (shared between main + modal)
+// ══════════════════════════════════════════════════════════════════════
+function renderQuizResult(quiz, mode, answers, submitted, isModal) {
+  const prefix = isModal ? 'm-' : '';
+
+  let html = `<div class="fade-in">`;
+
+  // Header
+  html += `
+  <div class="result-header">
+    <h2 class="result-title">${escHtml(quiz.title)}</h2>
+    <div class="result-meta">
+      <span class="chip chip-blue">📖 ${quiz.quiz.length} Questions</span>
+      <span class="chip chip-green">🏷 ${(quiz.sections||[]).length} Sections</span>
+      <span class="chip chip-purple">🔗 ${(quiz.related_topics||[]).length} Related Topics</span>
+    </div>
+    <p class="summary-text">${escHtml(quiz.summary || '')}</p>
+  </div>`;
+
+  // Entities + Sections
+  const ent = quiz.key_entities || {};
+  const people = (ent.people||[]).slice(0,6);
+  const orgs = (ent.organizations||[]).slice(0,5);
+  const locs = (ent.locations||[]).slice(0,5);
+  const sections = (quiz.sections||[]).slice(0,8);
+
+  if (people.length || orgs.length || locs.length || sections.length) {
+    html += `<div class="two-col">`;
+    if (people.length || orgs.length || locs.length) {
+      html += `<div class="info-panel">
+        <div class="info-panel-title">Key Entities</div>
+        <div class="tag-list">
+          ${people.map(p => `<span class="tag" style="border-color:rgba(163,113,247,0.3);color:var(--purple)">${escHtml(p)}</span>`).join('')}
+          ${orgs.map(o => `<span class="tag" style="border-color:rgba(88,166,255,0.3);color:var(--accent)">${escHtml(o)}</span>`).join('')}
+          ${locs.map(l => `<span class="tag">${escHtml(l)}</span>`).join('')}
+        </div>
+      </div>`;
+    }
+    if (sections.length) {
+      html += `<div class="info-panel">
+        <div class="info-panel-title">Article Sections</div>
+        <div class="tag-list">
+          ${sections.map(s => `<span class="tag">${escHtml(s)}</span>`).join('')}
+        </div>
+      </div>`;
+    }
+    html += `</div>`;
+  }
+
+  // Score banner (take mode + submitted)
+  if (mode === 'take' && submitted) {
+    const correct = quiz.quiz.filter((q,i) => answers[i] === q.answer).length;
+    const pct = Math.round((correct / quiz.quiz.length) * 100);
+    const grade = pct >= 80 ? '🏆' : pct >= 60 ? '👍' : '📚';
+    html += `
+    <div class="score-banner">
+      <div class="score-big">${pct}%</div>
+      <div class="score-sub">${grade} You got ${correct} of ${quiz.quiz.length} correct</div>
+      <div class="score-row">
+        <div class="score-stat">
+          <div class="score-stat-n" style="color:var(--green)">${correct}</div>
+          <div class="score-stat-l">Correct</div>
+        </div>
+        <div class="score-stat">
+          <div class="score-stat-n" style="color:var(--red)">${quiz.quiz.length - correct}</div>
+          <div class="score-stat-l">Incorrect</div>
+        </div>
+        <div class="score-stat">
+          <div class="score-stat-n" style="color:var(--accent)">${quiz.quiz.length}</div>
+          <div class="score-stat-l">Total</div>
+        </div>
+      </div>
+    </div>`;
+  }
+
+  // Mode toggle
+  html += `
+  <div class="mode-bar">
+    <span class="mode-bar-title">Quiz Questions</span>
+    <div class="mode-toggle">
+      <button class="mode-btn ${mode==='study'?'active':''}" data-action="${prefix}mode-study">Study Mode</button>
+      <button class="mode-btn ${mode==='take'?'active':''}" data-action="${prefix}mode-take">Take Quiz</button>
+    </div>
+  </div>`;
+
+  // Questions
+  const letters = ['A','B','C','D'];
+  quiz.quiz.forEach((q, qi) => {
+    const userAns = answers[qi];
+    const showAnswer = mode === 'study' || submitted;
+
+    html += `<div class="q-card">
+      <div class="q-header">
+        <div class="q-number">${qi+1}</div>
+        <div class="q-text">${escHtml(q.question)}</div>
+        <div class="diff-badge diff-${q.difficulty}">${q.difficulty}</div>
+      </div>
+      <div class="options-grid">`;
+
+    q.options.forEach((opt, oi) => {
+      const isCorrect = opt === q.answer;
+      const isSelected = userAns === opt;
+      let cls = 'option-btn';
+      if (showAnswer && isCorrect) cls += ' reveal-correct';
+      if (mode === 'take' && submitted) {
+        if (isSelected && isCorrect) cls = 'option-btn correct';
+        else if (isSelected && !isCorrect) cls = 'option-btn incorrect';
+        else if (isCorrect) cls = 'option-btn reveal-correct';
+      } else if (mode === 'take' && !submitted && isSelected) {
+        cls += ' selected';
+      }
+      const disabled = mode === 'study' || submitted ? 'disabled' : '';
+      html += `<button class="${cls}" ${disabled}
+        data-action="${prefix}answer" data-qi="${qi}" data-opt="${escAttr(opt)}">
+        <span class="opt-letter">${letters[oi]}</span>
+        ${escHtml(opt)}
+      </button>`;
+    });
+
+    html += `</div>`;
+    if (showAnswer && q.explanation) {
+      html += `<div class="explanation"><strong>💡 Explanation:</strong> ${escHtml(q.explanation)}</div>`;
+    }
+    html += `</div>`;
+  });
+
+  // Submit button (take mode, not yet submitted)
+  if (mode === 'take' && !submitted) {
+    const answered = Object.keys(answers).length;
+    html += `<div class="quiz-actions">
+      <button class="btn btn-primary" data-action="${prefix}submit-quiz"
+        ${answered < quiz.quiz.length ? 'disabled' : ''}>
+        Submit Quiz (${answered}/${quiz.quiz.length} answered)
+      </button>
+      <button class="btn btn-outline" data-action="${prefix}reset-quiz">Reset</button>
+    </div>`;
+  } else if (mode === 'take' && submitted) {
+    html += `<div class="quiz-actions">
+      <button class="btn btn-outline" data-action="${prefix}reset-quiz">Try Again</button>
+    </div>`;
+  }
+
+  // Related Topics
+  if ((quiz.related_topics||[]).length) {
+    html += `<div class="related-section">
+      <h3 class="section-title">Further Reading</h3>
+      <div class="topic-grid">
+        ${quiz.related_topics.map(t => {
+          const wikiUrl = `https://en.wikipedia.org/wiki/${encodeURIComponent(t.replace(/ /g,'_'))}`;
+          return `<a href="${wikiUrl}" target="_blank" class="topic-chip">${escHtml(t)}</a>`;
+        }).join('')}
+      </div>
+    </div>`;
+  }
+
+  html += `</div>`;
+  return html;
+}
+
+// ══════════════════════════════════════════════════════════════════════
+// HISTORY TAB
+// ══════════════════════════════════════════════════════════════════════
+function renderHistory() {
+  let html = '';
+
+  // Modal
+  if (state.modal) {
+    html += `
+    <div class="modal-overlay" id="modal-overlay">
+      <div class="modal">
+        <button class="modal-close" data-action="close-modal">✕</button>
+        ${renderQuizResult(state.modal, state.modalMode, state.modalAnswers, state.modalSubmitted, true)}
+      </div>
+    </div>`;
+  }
+
+  if (state.histLoading) {
+    html += `<div class="loading-card"><div class="spinner"></div><p class="loading-text">Loading history…</p></div>`;
+    return html;
+  }
+
+  if (!state.history.length) {
+    html += `
+    <div class="empty-state">
+      <div class="empty-icon">📚</div>
+      <div class="empty-title">No quizzes yet</div>
+      <div class="empty-sub">Generate your first quiz in the Generate tab.</div>
+    </div>`;
+    return html;
+  }
+
+  html += `
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1.25rem;flex-wrap:wrap;gap:10px;">
+    <h2 style="font-family:'Fraunces',serif;font-size:26px;font-weight:300;">Quiz <em style="font-style:italic;color:var(--accent)">History</em></h2>
+    <span class="chip chip-blue">${state.history.length} quizzes</span>
+  </div>
+  <div class="table-wrap">
+    <table class="history-table">
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Article</th>
+          <th>Questions</th>
+          <th>Date</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        ${state.history.map((h, i) => `
+        <tr>
+          <td style="color:var(--text3);width:40px">${h.id}</td>
+          <td>
+            <span class="table-title">${escHtml(h.title)}</span>
+            <span class="table-url">${escHtml(h.url)}</span>
+          </td>
+          <td><span class="chip chip-green">${h.question_count} Q</span></td>
+          <td style="color:var(--text2);white-space:nowrap">${formatDate(h.created_at)}</td>
+          <td style="white-space:nowrap">
+            <button class="btn-sm" data-action="view-hist" data-id="${h.id}" style="margin-right:6px">View</button>
+            <button class="btn-sm danger" data-action="del-hist" data-id="${h.id}">Delete</button>
+          </td>
+        </tr>`).join('')}
+      </tbody>
+    </table>
+  </div>`;
+
+  return html;
+}
+
+// ══════════════════════════════════════════════════════════════════════
+// EVENT BINDING
+// ══════════════════════════════════════════════════════════════════════
+function bindEvents() {
+  const app = document.getElementById('app');
+
+  // URL input
+  const urlInput = document.getElementById('url-input');
+  if (urlInput) {
+    urlInput.addEventListener('input', (e) => {
+      state.url = e.target.value;
+      clearTimeout(state._previewTimer);
+      state.preview = null;
+      state._previewTimer = setTimeout(() => fetchPreview(state.url), 600);
+    });
+    urlInput.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') doGenerate();
+    });
+  }
+
+  // Generate button
+  const genBtn = document.getElementById('generate-btn');
+  if (genBtn) genBtn.addEventListener('click', doGenerate);
+
+  // All data-action buttons
+  app.addEventListener('click', (e) => {
+    const el = e.target.closest('[data-action]');
+    if (!el) return;
+    const action = el.dataset.action;
+
+    if (action === 'mode-study') setState({ mode: 'study', answers: {}, submitted: false });
+    else if (action === 'mode-take') setState({ mode: 'take', answers: {}, submitted: false });
+    else if (action === 'answer') {
+      if (state.submitted) return;
+      const qi = parseInt(el.dataset.qi);
+      const opt = el.dataset.opt;
+      setState({ answers: { ...state.answers, [qi]: opt } });
+    }
+    else if (action === 'submit-quiz') setState({ submitted: true });
+    else if (action === 'reset-quiz') setState({ answers: {}, submitted: false });
+
+    // modal modes
+    else if (action === 'm-mode-study') setState({ modalMode: 'study', modalAnswers: {}, modalSubmitted: false });
+    else if (action === 'm-mode-take') setState({ modalMode: 'take', modalAnswers: {}, modalSubmitted: false });
+    else if (action === 'm-answer') {
+      if (state.modalSubmitted) return;
+      const qi = parseInt(el.dataset.qi);
+      const opt = el.dataset.opt;
+      setState({ modalAnswers: { ...state.modalAnswers, [qi]: opt } });
+    }
+    else if (action === 'm-submit-quiz') setState({ modalSubmitted: true });
+    else if (action === 'm-reset-quiz') setState({ modalAnswers: {}, modalSubmitted: false });
+    else if (action === 'close-modal') setState({ modal: null, modalMode: 'study', modalAnswers: {}, modalSubmitted: false });
+
+    else if (action === 'view-hist') loadQuizDetail(parseInt(el.dataset.id));
+    else if (action === 'del-hist') deleteQuiz(parseInt(el.dataset.id));
+  });
+
+  // Example URLs
+  app.querySelectorAll('.example-url').forEach(btn => {
+    btn.addEventListener('click', () => {
+      state.url = btn.dataset.url;
+      const inp = document.getElementById('url-input');
+      if (inp) inp.value = state.url;
+      fetchPreview(state.url);
+    });
+  });
+
+  // Close modal on overlay click
+  const overlay = document.getElementById('modal-overlay');
+  if (overlay) {
+    overlay.addEventListener('click', (e) => {
+      if (e.target === overlay) setState({ modal: null, modalMode: 'study', modalAnswers: {}, modalSubmitted: false });
+    });
+  }
+}
+
+// ══════════════════════════════════════════════════════════════════════
+// API CALLS
+// ══════════════════════════════════════════════════════════════════════
+let _previewTimer = null;
+
+async function fetchPreview(url) {
+  if (!url || !url.includes('wikipedia.org/wiki/')) return;
+  setState({ previewLoading: true, preview: null });
+  try {
+    const r = await fetch(`${API_BASE}/api/preview`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ url }),
+    });
+    if (r.ok) {
+      const data = await r.json();
+      setState({ preview: data, previewLoading: false });
+    } else {
+      setState({ preview: null, previewLoading: false });
+    }
+  } catch { setState({ preview: null, previewLoading: false }); }
+}
+
+async function doGenerate() {
+  const url = (document.getElementById('url-input')?.value || state.url).trim();
+  if (!url) return;
+  setState({ loading: true, error: null, quiz: null, url, mode: 'study', answers: {}, submitted: false });
+  try {
+    const r = await fetch(`${API_BASE}/api/generate-quiz`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ url }),
+    });
+    const data = await r.json();
+    if (!r.ok) throw new Error(data.detail || 'Unknown error');
+    setState({ loading: false, quiz: data });
+  } catch (e) {
+    setState({ loading: false, error: e.message });
+  }
+}
+
+async function loadHistory() {
+  setState({ histLoading: true });
+  try {
+    const r = await fetch(`${API_BASE}/api/history`);
+    const data = await r.json();
+    setState({ history: Array.isArray(data) ? data : [], histLoading: false });
+  } catch {
+    setState({ history: [], histLoading: false });
+  }
+}
+
+async function loadQuizDetail(id) {
+  try {
+    const r = await fetch(`${API_BASE}/api/history/${id}`);
+    const data = await r.json();
+    setState({ modal: data, modalMode: 'study', modalAnswers: {}, modalSubmitted: false });
+  } catch (e) {
+    alert('Failed to load quiz: ' + e.message);
+  }
+}
+
+async function deleteQuiz(id) {
+  if (!confirm('Delete this quiz from history?')) return;
+  try {
+    await fetch(`${API_BASE}/api/history/${id}`, { method: 'DELETE' });
+    setState({ history: state.history.filter(h => h.id !== id) });
+  } catch (e) { alert('Delete failed: ' + e.message); }
+}
+
+// ══════════════════════════════════════════════════════════════════════
+// UTILS
+// ══════════════════════════════════════════════════════════════════════
+function escHtml(str) {
+  if (!str) return '';
+  return String(str)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;');
+}
+function escAttr(str) { return escHtml(str); }
+function formatDate(iso) {
+  if (!iso) return '—';
+  const d = new Date(iso);
+  return d.toLocaleDateString('en-GB', { day:'numeric', month:'short', year:'numeric' });
+}
+
+// ══════════════════════════════════════════════════════════════════════
+// INIT
+// ══════════════════════════════════════════════════════════════════════
+render();
+</script>
+</body>
+</html>

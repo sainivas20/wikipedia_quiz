@@ -1,0 +1,72 @@
+{
+  "id": 1,
+  "url": "https://en.wikipedia.org/wiki/Alan_Turing",
+  "title": "Alan Turing",
+  "summary": "Alan Mathison Turing OBE FRS was an English mathematician, computer scientist, logician, cryptanalyst, philosopher, and theoretical biologist. Turing was highly influential in the development of theoretical computer science, providing a formalisation of the concepts of algorithm and computation with the Turing machine, which can be considered a model of a general-purpose computer.",
+  "key_entities": {
+    "people": ["Alan Turing", "Alonzo Church", "Max Newman", "Christopher Morcom"],
+    "organizations": ["University of Cambridge", "Bletchley Park", "National Physical Laboratory", "GCHQ"],
+    "locations": ["United Kingdom", "Manchester", "Princeton", "Maida Vale"]
+  },
+  "sections": ["Early life and education", "University and work on computability", "Cryptanalysis of the Enigma", "Pilot ACE", "Computing machinery and intelligence", "Pattern formation and mathematical biology"],
+  "quiz": [
+    {
+      "question": "Where did Alan Turing study as an undergraduate?",
+      "options": ["Harvard University", "King's College, Cambridge", "Oxford University", "Princeton University"],
+      "answer": "King's College, Cambridge",
+      "difficulty": "easy",
+      "explanation": "Mentioned in the 'Early life and education' section — Turing studied mathematics at King's College, Cambridge."
+    },
+    {
+      "question": "What concept did Turing introduce in his 1936 paper that became foundational to computer science?",
+      "options": ["The stored-program computer", "The Turing machine", "The transistor", "Boolean algebra"],
+      "answer": "The Turing machine",
+      "difficulty": "medium",
+      "explanation": "The 1936 paper 'On Computable Numbers' introduced the theoretical Turing machine, a model of computation."
+    },
+    {
+      "question": "What was the name of the electromechanical device Turing helped develop to break Enigma?",
+      "options": ["ENIAC", "Colossus", "The Bombe", "UNIVAC"],
+      "answer": "The Bombe",
+      "difficulty": "medium",
+      "explanation": "The Bombe was an electromechanical device used by British cryptologists at Bletchley Park to break Enigma-encrypted messages."
+    },
+    {
+      "question": "What test did Turing propose in his 1950 paper as a measure of machine intelligence?",
+      "options": ["The Turing Test", "The Imitation Game", "The Chinese Room", "The Voigt-Kampff test"],
+      "answer": "The Imitation Game",
+      "difficulty": "hard",
+      "explanation": "Turing's 1950 paper 'Computing Machinery and Intelligence' proposed the Imitation Game — commonly called the Turing Test today — but Turing himself called it the Imitation Game."
+    },
+    {
+      "question": "In what year was Alan Turing born?",
+      "options": ["1908", "1912", "1920", "1903"],
+      "answer": "1912",
+      "difficulty": "easy",
+      "explanation": "Alan Turing was born on 23 June 1912 in Maida Vale, London."
+    },
+    {
+      "question": "What branch of biology did Turing's final major work address?",
+      "options": ["Genetics", "Neuroscience", "Morphogenesis", "Ecology"],
+      "answer": "Morphogenesis",
+      "difficulty": "hard",
+      "explanation": "In 1952 Turing published 'The Chemical Basis of Morphogenesis', describing a mathematical model of pattern formation in biological organisms."
+    },
+    {
+      "question": "What royal pardon was granted to Alan Turing, and in what year?",
+      "options": ["Knighthood in 1954", "Royal Pardon for gross indecency in 2013", "Presidential Medal in 2000", "OBE reinstatement in 1980"],
+      "answer": "Royal Pardon for gross indecency in 2013",
+      "difficulty": "medium",
+      "explanation": "Queen Elizabeth II granted Turing a posthumous royal pardon in 2013 for his 1952 conviction for gross indecency."
+    }
+  ],
+  "related_topics": [
+    "Enigma machine",
+    "Bletchley Park",
+    "Church–Turing thesis",
+    "Artificial intelligence",
+    "Cryptanalysis",
+    "Computability theory",
+    "History of computing"
+  ]
+}
